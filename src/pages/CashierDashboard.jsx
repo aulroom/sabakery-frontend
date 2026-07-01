@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API from '../services/api'; // Pastikan path ini mengarah ke file api.js 
 
 function CashierDashboard() {
   const navigate = useNavigate();
