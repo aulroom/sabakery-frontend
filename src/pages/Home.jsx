@@ -1,3 +1,4 @@
+import API from '../services/api';
 import { useEffect, useState } from 'react';
 import { getAllFoods, createFood, deleteFood } from '../services/foodService';
 import { Link } from 'react-router-dom';
@@ -318,20 +319,12 @@ function Home() {
                     const token = localStorage.getItem('token');
                     if (!token) return alert("Kamu harus Login dulu sebelum pesan roti!");
 
-                    const response = await fetch('http://localhost:5000/api/orders', {
-                      method: 'POST',
-                      headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` 
-                      },
-                      body: JSON.stringify({
-                        orderMethod: cartMethod,
-                        deliveryAddress: cartMethod === 'delivery' ? deliveryAddress : `Ambil di Toko (Jam: ${pickupTime})`,
-                        items: cart // Kirim isi keranjang
-                      })
-                    });
-
-                    const data = await response.json();
+                    const response = await API.post('/api/orders', {
+    orderMethod: cartMethod,
+    deliveryAddress: cartMethod === 'delivery' ? deliveryAddress : `Ambil di Toko (Jam: ${pickupTime})`,
+    items: cart
+});
+const data = response.data;
                     if (data.success) {
                       alert("YEAY! Pesananmu sudah masuk ke Dapur Kasir! 👨‍🍳🥐");
                       setIsCartOpen(false); 

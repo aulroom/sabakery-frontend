@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import API from '../services/api'; // 🔥 INI KUNCI UTAMANYA BOS!
 
 function Profile() {
   const navigate = useNavigate();
@@ -25,10 +26,9 @@ function Profile() {
           return;
         }
 
-        const response = await fetch('http://localhost:5000/api/users/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const result = await response.json();
+        // 🔥 GANTI PAKAI API.GET
+        const response = await API.get('/api/users/profile');
+        const result = response.data;
         
         if (result.success) {
           setUser({
@@ -58,11 +58,9 @@ function Profile() {
   const fetchMyOrders = async () => {
     setLoadingOrders(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/orders', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
+      // 🔥 GANTI PAKAI API.GET
+      const response = await API.get('/api/orders');
+      const data = response.data;
       
       if (data.success) {
         setOrders(data.data.orders || []);
@@ -87,20 +85,13 @@ function Profile() {
   // MENYIMPAN HASIL EDIT KE DATABASE
   const handleSave = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/users/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          full_name: user.full_name,
-          phone: user.phone
-        })
+      // 🔥 GANTI PAKAI API.PUT
+      const response = await API.put('/api/users/profile', {
+        full_name: user.full_name,
+        phone: user.phone
       });
       
-      const result = await response.json();
+      const result = response.data;
       if (result.success) {
         alert('Profil berhasil diperbarui! 🎉');
         setIsEditing(false);
@@ -116,14 +107,13 @@ function Profile() {
   const confirmDelivery = async (orderId) => {
     if(window.confirm("Apakah kamu yakin pesanan sudah sampai di tanganmu dengan aman?")) {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ status: 'delivered' })
+        // 🔥 GANTI PAKAI API.PUT
+        const response = await API.put(`/api/orders/${orderId}/status`, { 
+            status: 'delivered' 
         });
         
-        if (response.ok) {
+        // Axios menggunakan response.status, bukan response.ok
+        if (response.status === 200 || response.data) {
           alert("Yeay! Terima kasih, selamat menikmati rotinya! 🎉");
           fetchMyOrders(); // Langsung refresh layar pembeli
         }
@@ -162,7 +152,7 @@ function Profile() {
       
       {/* NAVBAR */}
       <nav className="bg-crumb-maroon text-crumb-cream py-4 px-8 flex justify-between items-center shadow-md mb-8">
-        <Link to="/" className="text-2xl font-serif tracking-widest font-bold cursor-pointer">CRUMB THEORY</Link>
+        <Link to="/" className="text-2xl font-serif tracking-widest font-bold cursor-pointer">SA BAKERY</Link>
         <button onClick={() => navigate('/')} className="bg-crumb-cream text-crumb-maroon px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-white transition-all shadow-md">
           Belanja Lagi 🛒
         </button>

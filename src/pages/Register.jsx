@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import API from '../services/api'; // 🔥 INI WAJIB DITAMBAHKAN BOS
 
 function Register() {
   const navigate = useNavigate();
@@ -23,12 +24,9 @@ function Register() {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const result = await response.json();
+      // 🔥 FETCH LOCALHOST DIHAPUS, GANTI JADI API.POST 🔥
+      const response = await API.post('/api/auth/register', formData);
+      const result = response.data;
 
       if (result.success) {
         alert('Registrasi berhasil! Silakan masuk menggunakan akun barumu. 🍞');
@@ -37,7 +35,12 @@ function Register() {
         setError(result.message || 'Gagal mendaftar. Username/Email mungkin sudah terpakai.');
       }
     } catch (err) {
-      setError('Gagal menghubungi server. Pastikan Backend menyala.');
+      // 🔥 Axios menangkap error dari backend di sini
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'Gagal mendaftar. Username/Email mungkin sudah terpakai.');
+      } else {
+        setError('Gagal menghubungi server. Pastikan Backend menyala.');
+      }
     } finally {
       setLoading(false);
     }
