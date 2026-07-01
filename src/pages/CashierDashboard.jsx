@@ -17,7 +17,7 @@ function CashierDashboard() {
   const fetchOrders = async () => {
     try {
       const response = await API.get('/api/orders'); // Sesuaikan endpoint dengan yang ada di backend
-const data = response.data;
+      const data = response.data;
       
       if (data.success) {
         // Ambil list arsip terbaru langsung dari localStorage untuk keakuratan
@@ -30,10 +30,16 @@ const data = response.data;
         setOrders(activeOrders);
 
         // Supaya data di panel kanan otomatis ikut berubah secara real-time saat disegarkan
-        if (selectedOrder) {
-          const updatedSelected = activeOrders.find(o => o.id === selectedOrder.id);
-          setSelectedOrder(updatedSelected || null);
-        }
+        // (Catatan: karena kita pakai useEffect [], jika panel kanan tidak mau auto-update
+        // saat interval jalan, kamu bisa gunakan pendekatan useRef nanti. Tapi untuk
+        // menghentikan error interval, ini sudah aman).
+        setSelectedOrder((prevSelected) => {
+            if (prevSelected) {
+                const updatedSelected = activeOrders.find(o => o.id === prevSelected.id);
+                return updatedSelected || null;
+            }
+            return prevSelected;
+        });
       }
     } catch (error) {
       console.error("Gagal load antrian kasir:", error);
@@ -43,16 +49,16 @@ const data = response.data;
   };
 
   useEffect(() => {
-    fetchOrders();
-    const interval = setInterval(fetchOrders, 5000); // Cek dapur setiap 5 detik
+    fetchOrders(); // Panggil sekali saat halaman dimuat
+    const interval = setInterval(fetchOrders, 5000); // Interval jalan sendiri tiap 5 detik
     return () => clearInterval(interval);
-  }, [selectedOrder, archivedOrders]);
+  }, []); // <--- PERBAIKAN: ARRAY SUDAH DIKOSONGKAN DI SINI!
 
   const updateStatus = async (orderId, newStatus) => {
     try {
       const response = await API.put(`/api/orders/${orderId}/status`, {
-    status: newStatus 
-});
+        status: newStatus 
+      });
       
       if (response.data) {
         fetchOrders();
