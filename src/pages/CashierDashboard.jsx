@@ -15,11 +15,8 @@ function CashierDashboard() {
 
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/orders', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
+      const response = await API.get('/api/orders'); // Sesuaikan endpoint dengan yang ada di backend
+const data = response.data;
       
       if (data.success) {
         // Ambil list arsip terbaru langsung dari localStorage untuk keakuratan
@@ -52,17 +49,11 @@ function CashierDashboard() {
 
   const updateStatus = async (orderId, newStatus) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
+      const response = await API.put(`/api/orders/${orderId}/status`, {
+    status: newStatus 
+});
       
-      if (response.ok) {
+      if (response.data) {
         fetchOrders();
       }
     } catch (error) {

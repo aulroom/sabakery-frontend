@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import API from '../services/api'; // 🔥 INI IMPORT KUNCI UTAMANYA
 
 function Login() {
   const navigate = useNavigate();
@@ -15,15 +16,12 @@ function Login() {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const result = await response.json();
+      // 🔥 MENGGUNAKAN API.POST (Tidak perlu localhost dan headers manual lagi)
+      const response = await API.post('/api/auth/login', formData);
+      const result = response.data;
 
       if (result.success) {
-        // Ambil token dan data user (Mendukung berbagai format respons backend)
+        // Ambil token dan data user 
         const token = result.token || result.data?.token;
         const userRole = result.user?.role || result.data?.user?.role || 'pembeli';
 
@@ -43,7 +41,12 @@ function Login() {
         setError(result.message || 'Login gagal. Coba periksa lagi email dan passwordmu.');
       }
     } catch (err) {
-      setError('Gagal menghubungi satpam server. Pastikan Backend menyala.');
+      // 🔥 Axios melemparkan error kalau password salah, jadi kita tangkap di sini
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'Login gagal. Coba periksa email dan passwordmu.');
+      } else {
+        setError('Gagal menghubungi satpam server. Pastikan Backend menyala.');
+      }
     } finally {
       setLoading(false);
     }

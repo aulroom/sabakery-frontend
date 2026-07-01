@@ -1,3 +1,4 @@
+import API from '../services/api'; // Sesuaikan lokasi folder services-nya
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllFoods, createFood, deleteFood } from '../services/foodService';
@@ -24,11 +25,9 @@ function AdminDashboard() {
 
   const fetchRealData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/orders', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
+     // Ganti dengan ini:
+const response = await API.get('/api/orders'); 
+const data = response.data;
       
       if (data.success) {
         const orders = data.data.orders || data.data || [];

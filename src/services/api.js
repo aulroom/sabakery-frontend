@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Membuat konfigurasi dasar untuk menembak ke Backend
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api', // Sesuaikan dengan URL Backend kamu
+  baseURL: 'https://sabakery-backend.onrender.com', // Sesuaikan dengan URL Backend kamu
 });
 
 // Menyisipkan token otomatis ke setiap request (jika user sudah login)
