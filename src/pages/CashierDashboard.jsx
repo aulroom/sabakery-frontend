@@ -29,20 +29,25 @@ function CashierDashboard() {
         );
         setOrders(activeOrders);
 
-        // Supaya data di panel kanan otomatis ikut berubah secara real-time saat disegarkan
-        // (Catatan: karena kita pakai useEffect [], jika panel kanan tidak mau auto-update
-        // saat interval jalan, kamu bisa gunakan pendekatan useRef nanti. Tapi untuk
-        // menghentikan error interval, ini sudah aman).
+        // HANYA update selectedOrder jika pesanan yang dipilih masih ada di daftar
+        // JANGAN reset ke null kecuali pesanan benar-benar hilang/diarsipkan
+        // (Kita gunakan prevSelected supaya aman dari bug interval useEffect)
         setSelectedOrder((prevSelected) => {
             if (prevSelected) {
-                const updatedSelected = activeOrders.find(o => o.id === prevSelected.id);
-                return updatedSelected || null;
+                const stillExists = activeOrders.find(o => o.id === prevSelected.id);
+                if (!stillExists) {
+                    return null; // Hanya null jika pesanan sudah hilang dari antrian kiri
+                } else {
+                    return stillExists; // Update datanya saja tanpa mengganti referensi/menutup nota
+                }
             }
             return prevSelected;
         });
       }
     } catch (error) {
-      console.error("Gagal load antrian kasir:", error);
+      // JANGAN set apa-apa jika error, biarkan data lama tetap di layar
+      // supaya tidak terjadi flickering (layar berkedip) saat API sesaat gagal
+      console.error("Gagal load antrian, tetap gunakan data lama:", error);
     } finally {
       setLoading(false);
     }
@@ -52,7 +57,7 @@ function CashierDashboard() {
     fetchOrders(); // Panggil sekali saat halaman dimuat
     const interval = setInterval(fetchOrders, 5000); // Interval jalan sendiri tiap 5 detik
     return () => clearInterval(interval);
-  }, []); // <--- PERBAIKAN: ARRAY SUDAH DIKOSONGKAN DI SINI!
+  }, []); // <--- ARRAY DIKOSONGKAN AGAR INTERVAL TIDAK RESET TERUS-MENERUS
 
   const updateStatus = async (orderId, newStatus) => {
     try {
