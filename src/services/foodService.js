@@ -3,7 +3,8 @@ import API from './api';
 // 1. READ: Mengambil semua menu
 export const getAllFoods = async () => {
   try {
-    const response = await API.get('/foods'); 
+    // 🔥 UBAH: Tambahkan /api di depan /foods
+    const response = await API.get('/api/foods'); 
     return response.data.data.foods; 
   } catch (error) {
     console.error("Error fetching foods:", error);
@@ -14,7 +15,8 @@ export const getAllFoods = async () => {
 // 2. CREATE: Menambah menu baru dari web (pengganti Postman)
 export const createFood = async (foodData) => {
   try {
-    const response = await API.post('/foods', foodData);
+    // 🔥 UBAH: Tambahkan /api di depan /foods
+    const response = await API.post('/api/foods', foodData);
     return response.data;
   } catch (error) {
     console.error("Error creating food:", error);
@@ -25,7 +27,8 @@ export const createFood = async (foodData) => {
 // 3. DELETE: Menghapus menu
 export const deleteFood = async (id) => {
   try {
-    const response = await API.delete(`/foods/${id}`);
+    // 🔥 UBAH: Tambahkan /api di depan /foods
+    const response = await API.delete(`/api/foods/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting food:", error);
